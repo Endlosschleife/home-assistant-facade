@@ -1,0 +1,8 @@
+pro:
+  torben:
+    hafacade:
+      calendar:
+        CalendarClient/mp-rest/url: http://localhost:8123/api
+
+hafacade:
+  home-assistant-auth-token: ${HOME_ASSISTANT_AUTH_TOKEN}
