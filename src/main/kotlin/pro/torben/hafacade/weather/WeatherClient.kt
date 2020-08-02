@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient
 import pro.torben.hafacade.HARequestFilter
+import java.math.BigInteger
 import javax.ws.rs.*
 
 
@@ -33,5 +34,14 @@ data class Weather(
 data class WeatherAttributes(
     var humidity: Int? = null,
     var pressure: Int? = null,
+    var temperature: Double? = null,
+    var forecast: Collection<WeatherForecast>? = emptyList()
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class WeatherForecast(
+    var condition: String? = null,
+    var datetime: Long? = null,
+    var precipitation: Double? = null,
     var temperature: Double? = null
 )
