@@ -2,10 +2,12 @@ package pro.torben.hafacade.dashboard
 
 import org.eclipse.microprofile.rest.client.inject.RestClient
 import pro.torben.hafacade.calendar.CalendarClient
-import pro.torben.hafacade.weather.Weather
 import pro.torben.hafacade.weather.WeatherClient
-import java.time.*
-import java.time.ZoneOffset.UTC
+import pro.torben.hafacade.weather.WeatherForecast
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.OffsetDateTime
+import java.time.ZoneId
 import java.time.format.TextStyle
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
@@ -35,13 +37,28 @@ class DashboardService {
       )
     }
 
-    val weather = weatherClient.getWeather().toDashboardWeather()
+    val weather = weatherClient.getWeather()
+    val dashboardWeather = DashboardWeather(
+        temperature = weather.attributes?.temperature,
+        humidity = weather.attributes?.humidity,
+        pressure = weather.attributes?.pressure,
+        condition = WeatherCondition.fromHAValue(weather.state!!),
+        conditionText = WeatherCondition.fromHAValue(weather.state!!).value,
+        forecast = weather.attributes?.forecast?.filter { isFutureForecast(it) }?.take(4)?.map {
+          DashboardWeatherForecastItem(
+              condition = WeatherCondition.fromHAValue(it.condition!!),
+              conditionText = WeatherCondition.fromHAValue(it.condition!!).value,
+              temperature = it.temperature,
+              datetime = LocalDateTime.ofInstant(Instant.ofEpochMilli(it?.datetime ?: 0), ZoneId.systemDefault())
+          )
+        } ?: emptyList()
+    )
 
     val currentDate = OffsetDateTime.now()
 
     return Dashboard(
         events = calendarItems,
-        weather = weather,
+        weather = dashboardWeather,
         currentDate = DashboardCurrentDate(
             day = currentDate.dayOfMonth.toString(),
             dayOfWeek = currentDate.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.GERMAN),
@@ -49,6 +66,9 @@ class DashboardService {
         )
     )
   }
+
+  fun isFutureForecast(forecastItem: WeatherForecast): Boolean = Instant.ofEpochMilli(forecastItem.datetime
+      ?: 0).isAfter(Instant.now())
 
 }
 
@@ -88,7 +108,7 @@ enum class WeatherCondition(val homeAssistantValue: String, val value: String) {
   SUNNY("sunny", "Sonnig"),
   WINDY("windy", "Windig"),
   WINDY_VARIANT("windy-variant", "Windig"),
-  EXCEPTIONAL("exceptional" , "?");
+  EXCEPTIONAL("exceptional", "?");
 
   companion object {
     fun fromHAValue(value: String): WeatherCondition {
@@ -115,18 +135,18 @@ data class DashboardCurrentDate(
     val month: String
 )
 
-fun Weather.toDashboardWeather(): DashboardWeather = DashboardWeather(
-    temperature = this.attributes?.temperature,
-    humidity = this.attributes?.humidity,
-    pressure = this.attributes?.pressure,
-    condition = WeatherCondition.fromHAValue(this.state!!),
-    conditionText = WeatherCondition.fromHAValue(this.state!!).value,
-    forecast = this.attributes?.forecast?.take(4)?.map {
-      DashboardWeatherForecastItem(
-          condition = WeatherCondition.fromHAValue(it.condition!!),
-          conditionText = WeatherCondition.fromHAValue(it.condition!!).value,
-          temperature = it.temperature,
-          datetime = LocalDateTime.ofInstant(Instant.ofEpochMilli(it?.datetime ?: 0), ZoneId.systemDefault())
-      )
-    } ?: emptyList()
-)
+//fun Weather.toDashboardWeather(): DashboardWeather = DashboardWeather(
+//    temperature = this.attributes?.temperature,
+//    humidity = this.attributes?.humidity,
+//    pressure = this.attributes?.pressure,
+//    condition = WeatherCondition.fromHAValue(this.state!!),
+//    conditionText = WeatherCondition.fromHAValue(this.state!!).value,
+//    forecast = this.attributes?.forecast?.filter { DashboardService::isAfterNow }?.take(4)?.map {
+//      DashboardWeatherForecastItem(
+//          condition = WeatherCondition.fromHAValue(it.condition!!),
+//          conditionText = WeatherCondition.fromHAValue(it.condition!!).value,
+//          temperature = it.temperature,
+//          datetime = LocalDateTime.ofInstant(Instant.ofEpochMilli(it?.datetime ?: 0), ZoneId.systemDefault())
+//      )
+//    } ?: emptyList()
+//)
