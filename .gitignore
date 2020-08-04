@@ -36,3 +36,4 @@ pom.xml.versionsBackup
 release.properties
 
 *.env
+!example.env
