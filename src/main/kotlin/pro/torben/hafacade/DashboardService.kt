@@ -1,12 +1,10 @@
-package pro.torben.hafacade.dashboard
+package pro.torben.hafacade
 
 import org.eclipse.microprofile.rest.client.inject.RestClient
-import pro.torben.hafacade.calendar.CalendarClient
-import pro.torben.hafacade.weather.WeatherClient
-import pro.torben.hafacade.weather.WeatherForecast
+import pro.torben.hafacade.apiclient.CalendarClient
+import pro.torben.hafacade.apiclient.WeatherClient
+import pro.torben.hafacade.apiclient.WeatherForecast
 import java.time.*
-import java.time.ZoneOffset.UTC
-import java.time.ZoneOffset.of
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.*
@@ -142,19 +140,3 @@ data class DashboardCurrentDate(
     val month: String,
     val time: String
 )
-
-//fun Weather.toDashboardWeather(): DashboardWeather = DashboardWeather(
-//    temperature = this.attributes?.temperature,
-//    humidity = this.attributes?.humidity,
-//    pressure = this.attributes?.pressure,
-//    condition = WeatherCondition.fromHAValue(this.state!!),
-//    conditionText = WeatherCondition.fromHAValue(this.state!!).value,
-//    forecast = this.attributes?.forecast?.filter { DashboardService::isAfterNow }?.take(4)?.map {
-//      DashboardWeatherForecastItem(
-//          condition = WeatherCondition.fromHAValue(it.condition!!),
-//          conditionText = WeatherCondition.fromHAValue(it.condition!!).value,
-//          temperature = it.temperature,
-//          datetime = LocalDateTime.ofInstant(Instant.ofEpochMilli(it?.datetime ?: 0), ZoneId.systemDefault())
-//      )
-//    } ?: emptyList()
-//)

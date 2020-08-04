@@ -1,10 +1,4 @@
-pro:
-  torben:
-    hafacade:
-      calendar:
-        CalendarClient/mp-rest/url: ${HOME_ASSISTANT_URL}
-      weather:
-        WeatherClient/mp-rest/url: ${HOME_ASSISTANT_URL}
+home-assistant/mp-rest/url: ${HOME_ASSISTANT_URL}
 
 hafacade:
   home-assistant-auth-token: ${HOME_ASSISTANT_AUTH_TOKEN}

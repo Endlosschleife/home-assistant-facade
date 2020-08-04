@@ -1,15 +1,14 @@
-package pro.torben.hafacade.weather
+package pro.torben.hafacade.apiclient
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient
 import pro.torben.hafacade.HARequestFilter
-import java.math.BigInteger
 import javax.ws.rs.*
 
 
 @Path("states")
-@RegisterRestClient()
+@RegisterRestClient(configKey = "home-assistant")
 @RegisterClientHeaders(HARequestFilter::class)
 interface WeatherClient {
 

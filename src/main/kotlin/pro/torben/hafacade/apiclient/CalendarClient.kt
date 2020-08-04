@@ -1,17 +1,16 @@
-package pro.torben.hafacade.calendar
+package pro.torben.hafacade.apiclient
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient
 import pro.torben.hafacade.HARequestFilter
-import java.time.Instant
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import javax.ws.rs.*
 
 
 @Path("calendars")
-@RegisterRestClient()
+@RegisterRestClient(configKey = "home-assistant")
 @RegisterClientHeaders(HARequestFilter::class)
 interface CalendarClient {
 
