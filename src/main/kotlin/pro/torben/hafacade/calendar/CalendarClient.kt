@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient
 import pro.torben.hafacade.HARequestFilter
+import java.time.Instant
+import java.time.LocalDate
 import java.time.OffsetDateTime
 import javax.ws.rs.*
 
@@ -32,5 +34,6 @@ data class CalendarItem(
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class DateTime(
-    var dateTime: OffsetDateTime? = null
+    var dateTime: OffsetDateTime? = null,
+    val date: LocalDate? = null
 )

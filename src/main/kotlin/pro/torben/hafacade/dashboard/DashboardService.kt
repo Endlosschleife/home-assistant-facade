@@ -4,10 +4,10 @@ import org.eclipse.microprofile.rest.client.inject.RestClient
 import pro.torben.hafacade.calendar.CalendarClient
 import pro.torben.hafacade.weather.WeatherClient
 import pro.torben.hafacade.weather.WeatherForecast
-import java.time.Instant
-import java.time.LocalDateTime
-import java.time.OffsetDateTime
-import java.time.ZoneId
+import java.time.*
+import java.time.ZoneOffset.UTC
+import java.time.ZoneOffset.of
+import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
@@ -28,12 +28,15 @@ class DashboardService {
     val calendarItems = calendarClient.getCalendar(
         "calendar.familienkalender",
         OffsetDateTime.now(),
-        OffsetDateTime.now().plusDays(7)
+        OffsetDateTime.now().plusDays(31) // todo
     ).map {
       DashboardCalendarEvent(
           title = it.summary,
           start = it.start.dateTime,
-          end = it.end.dateTime
+          end = it.end.dateTime,
+          startDate = it.start.date,
+          endDate = it.end.date,
+          isFullDayEvent = it.end.date != null
       )
     }
 
@@ -62,7 +65,8 @@ class DashboardService {
         currentDate = DashboardCurrentDate(
             day = currentDate.dayOfMonth.toString(),
             dayOfWeek = currentDate.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.GERMAN),
-            month = currentDate.month.getDisplayName(TextStyle.FULL, Locale.GERMAN)
+            month = currentDate.month.getDisplayName(TextStyle.FULL, Locale.GERMAN),
+            time = currentDate.format(DateTimeFormatter.ofPattern("HH:mm"))
         )
     )
   }
@@ -81,7 +85,10 @@ data class Dashboard(
 data class DashboardCalendarEvent(
     val title: String,
     val start: OffsetDateTime?,
-    val end: OffsetDateTime?
+    val end: OffsetDateTime?,
+    val startDate: LocalDate?,
+    val endDate: LocalDate?,
+    val isFullDayEvent: Boolean
 )
 
 data class DashboardWeather(
@@ -132,7 +139,8 @@ data class DashboardWeatherForecastItem(
 data class DashboardCurrentDate(
     val dayOfWeek: String,
     val day: String,
-    val month: String
+    val month: String,
+    val time: String
 )
 
 //fun Weather.toDashboardWeather(): DashboardWeather = DashboardWeather(
