@@ -22,6 +22,14 @@ class DashboardService {
   @RestClient
   lateinit var weatherClient: WeatherClient
 
+  @Inject
+  lateinit var haProperties: HaFacadeProperties
+
+  companion object {
+    const val LABEL_TODAY = "Heute"
+    const val LABEL_TOMORROW = "Morgen"
+  }
+
   fun getDashboard(): Dashboard {
     val weather = weatherClient.getWeather()
     val dashboardWeather = DashboardWeather(
@@ -59,7 +67,7 @@ class DashboardService {
 
   private fun buildUpcomingEvents(): Collection<DashboardCalendarGroup> {
     val calendarItems = calendarClient.getCalendar(
-        "calendar.familienkalender",
+        haProperties.calendar.entityName,
         OffsetDateTime.now(),
         OffsetDateTime.now().plusDays(2)
     ).map {
@@ -68,7 +76,7 @@ class DashboardService {
           start = if (it.start.dateTime != null) LocalDateTime.ofInstant(it.start.dateTime, ZoneId.systemDefault()) else null,
           end = if (it.end.dateTime != null) LocalDateTime.ofInstant(it.end.dateTime, ZoneId.systemDefault()) else null,
           startDate = it.start.date ?: LocalDateTime.ofInstant(it.start.dateTime, ZoneId.systemDefault()).toLocalDate(),
-          endDate = it.end.date ?:  LocalDateTime.ofInstant(it.end.dateTime, ZoneId.systemDefault()).toLocalDate(),
+          endDate = it.end.date ?: LocalDateTime.ofInstant(it.end.dateTime, ZoneId.systemDefault()).toLocalDate(),
           isFullDayEvent = it.end.date != null
       )
     }
@@ -81,7 +89,7 @@ class DashboardService {
     //  today events
     groups.add(
         DashboardCalendarGroup(
-            title = "Heute",
+            title = LABEL_TODAY,
             events = calendarItems
                 .filter { it.startDate != null && it.endDate != null }
                 .filter { it.startDate!! == today }
@@ -91,7 +99,7 @@ class DashboardService {
     // tomorrow events
     groups.add(
         DashboardCalendarGroup(
-            title = "Morgen",
+            title = LABEL_TOMORROW,
             events = calendarItems
                 .filter { it.startDate != null && it.endDate != null }
                 .filter { it.startDate!! == tomorrow }

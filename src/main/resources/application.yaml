@@ -2,3 +2,5 @@ home-assistant/mp-rest/url: ${HOME_ASSISTANT_URL}
 
 hafacade:
   home-assistant-auth-token: ${HOME_ASSISTANT_AUTH_TOKEN}
+  calendar:
+    entity-name: calendar.familienkalender
