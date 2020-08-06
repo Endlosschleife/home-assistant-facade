@@ -23,21 +23,6 @@ class DashboardService {
   lateinit var weatherClient: WeatherClient
 
   fun getDashboard(): Dashboard {
-    val calendarItems = calendarClient.getCalendar(
-        "calendar.familienkalender",
-        OffsetDateTime.now(),
-        OffsetDateTime.now().plusDays(31) // todo
-    ).map {
-      DashboardCalendarEvent(
-          title = it.summary,
-          start = it.start.dateTime,
-          end = it.end.dateTime,
-          startDate = it.start.date,
-          endDate = it.end.date,
-          isFullDayEvent = it.end.date != null
-      )
-    }
-
     val weather = weatherClient.getWeather()
     val dashboardWeather = DashboardWeather(
         temperature = weather.attributes?.temperature,
@@ -58,7 +43,7 @@ class DashboardService {
     val currentDate = OffsetDateTime.now()
 
     return Dashboard(
-        events = calendarItems,
+        events = buildUpcomingEvents(),
         weather = dashboardWeather,
         currentDate = DashboardCurrentDate(
             day = currentDate.dayOfMonth.toString(),
@@ -69,21 +54,70 @@ class DashboardService {
     )
   }
 
-  fun isFutureForecast(forecastItem: WeatherForecast): Boolean = Instant.ofEpochMilli(forecastItem.datetime
+  private fun isFutureForecast(forecastItem: WeatherForecast): Boolean = Instant.ofEpochMilli(forecastItem.datetime
       ?: 0).isAfter(Instant.now())
+
+  private fun buildUpcomingEvents(): Collection<DashboardCalendarGroup> {
+    val calendarItems = calendarClient.getCalendar(
+        "calendar.familienkalender",
+        OffsetDateTime.now(),
+        OffsetDateTime.now().plusDays(2)
+    ).map {
+      DashboardCalendarEvent(
+          title = it.summary,
+          start = if (it.start.dateTime != null) LocalDateTime.ofInstant(it.start.dateTime, ZoneId.systemDefault()) else null,
+          end = if (it.end.dateTime != null) LocalDateTime.ofInstant(it.end.dateTime, ZoneId.systemDefault()) else null,
+          startDate = it.start.date ?: LocalDateTime.ofInstant(it.start.dateTime, ZoneId.systemDefault()).toLocalDate(),
+          endDate = it.end.date ?:  LocalDateTime.ofInstant(it.end.dateTime, ZoneId.systemDefault()).toLocalDate(),
+          isFullDayEvent = it.end.date != null
+      )
+    }
+
+    val today = OffsetDateTime.now().toLocalDate()
+    val tomorrow = OffsetDateTime.now().plusDays(1).toLocalDate()
+
+    val groups = mutableListOf<DashboardCalendarGroup>()
+
+    //  today events
+    groups.add(
+        DashboardCalendarGroup(
+            title = "Heute",
+            events = calendarItems
+                .filter { it.startDate != null && it.endDate != null }
+                .filter { it.startDate!! == today }
+        )
+    )
+
+    // tomorrow events
+    groups.add(
+        DashboardCalendarGroup(
+            title = "Morgen",
+            events = calendarItems
+                .filter { it.startDate != null && it.endDate != null }
+                .filter { it.startDate!! == tomorrow }
+        )
+    )
+
+    return groups
+  }
 
 }
 
 data class Dashboard(
-    val events: Collection<DashboardCalendarEvent>,
+    val events: Collection<DashboardCalendarGroup>,
     val weather: DashboardWeather,
     val currentDate: DashboardCurrentDate
 )
 
+data class DashboardCalendarGroup(
+    val title: String,
+    val events: Collection<DashboardCalendarEvent>
+)
+
 data class DashboardCalendarEvent(
     val title: String,
-    val start: OffsetDateTime?,
-    val end: OffsetDateTime?,
+    val start: LocalDateTime?,
+    val end: LocalDateTime?,
     val startDate: LocalDate?,
     val endDate: LocalDate?,
     val isFullDayEvent: Boolean
