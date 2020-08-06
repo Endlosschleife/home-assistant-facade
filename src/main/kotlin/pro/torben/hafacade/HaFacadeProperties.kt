@@ -9,4 +9,6 @@ class HaFacadeProperties {
 
 class CalendarProperties {
   lateinit var entityName: String
+  var maxEventsToday: Int = 0
+  var maxEventsTomorrow: Int = 0
 }

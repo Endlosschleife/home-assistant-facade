@@ -10,6 +10,7 @@ import java.time.format.TextStyle
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
 import javax.inject.Inject
+import kotlin.math.max
 
 @ApplicationScoped
 class DashboardService {
@@ -87,22 +88,28 @@ class DashboardService {
     val groups = mutableListOf<DashboardCalendarGroup>()
 
     //  today events
+    val eventsToday = calendarItems
+        .filter { it.startDate != null && it.endDate != null }
+        .filter { it.startDate!! == today }
+    val moreEventsToday = max(eventsToday.size - haProperties.calendar.maxEventsToday, 0)
     groups.add(
         DashboardCalendarGroup(
             title = LABEL_TODAY,
-            events = calendarItems
-                .filter { it.startDate != null && it.endDate != null }
-                .filter { it.startDate!! == today }
+            events = eventsToday.take(haProperties.calendar.maxEventsToday),
+            moreEvents = moreEventsToday
         )
     )
 
     // tomorrow events
+    val eventsTomorrow = calendarItems
+        .filter { it.startDate != null && it.endDate != null }
+        .filter { it.startDate!! == tomorrow }
+    val moreEventsTomorrow = max(eventsTomorrow.size - haProperties.calendar.maxEventsTomorrow, 0)
     groups.add(
         DashboardCalendarGroup(
             title = LABEL_TOMORROW,
-            events = calendarItems
-                .filter { it.startDate != null && it.endDate != null }
-                .filter { it.startDate!! == tomorrow }
+            events = eventsTomorrow.take(haProperties.calendar.maxEventsTomorrow),
+            moreEvents = moreEventsTomorrow
         )
     )
 
@@ -119,7 +126,8 @@ data class Dashboard(
 
 data class DashboardCalendarGroup(
     val title: String,
-    val events: Collection<DashboardCalendarEvent>
+    val events: Collection<DashboardCalendarEvent>,
+    val moreEvents: Int
 )
 
 data class DashboardCalendarEvent(
