@@ -1,6 +1,8 @@
 package pro.torben.hafacade
 
 import org.eclipse.microprofile.rest.client.inject.RestClient
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import pro.torben.hafacade.apiclient.CalendarClient
 import pro.torben.hafacade.apiclient.WeatherClient
 import pro.torben.hafacade.apiclient.WeatherForecast
@@ -27,6 +29,7 @@ class DashboardService {
   lateinit var haProperties: HaFacadeProperties
 
   companion object {
+    val logger = LoggerFactory.getLogger(DashboardService::class.simpleName)
     const val LABEL_TODAY = "Heute"
     const val LABEL_TOMORROW = "Morgen"
   }
@@ -74,10 +77,10 @@ class DashboardService {
     ).map {
       DashboardCalendarEvent(
           title = it.summary,
-          start = if (it.start.dateTime != null) LocalDateTime.ofInstant(it.start.dateTime, ZoneId.systemDefault()) else null,
-          end = if (it.end.dateTime != null) LocalDateTime.ofInstant(it.end.dateTime, ZoneId.systemDefault()) else null,
-          startDate = it.start.date ?: LocalDateTime.ofInstant(it.start.dateTime, ZoneId.systemDefault()).toLocalDate(),
-          endDate = it.end.date ?: LocalDateTime.ofInstant(it.end.dateTime, ZoneId.systemDefault()).toLocalDate(),
+          start = if (it.start.dateTime != null) LocalDateTime.ofInstant(it.start.dateTime!!.toInstant(), ZoneId.systemDefault()) else null,
+          end = if (it.end.dateTime != null) LocalDateTime.ofInstant(it.end.dateTime!!.toInstant(), ZoneId.systemDefault()) else null,
+          startDate = it.start.date ?: it.start.dateTime?.toLocalDate(),
+          endDate = it.end.date ?: it.end.dateTime?.toLocalDate(),
           isFullDayEvent = it.end.date != null
       )
     }

@@ -34,6 +34,6 @@ data class CalendarItem(
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class DateTime(
-    var dateTime: Instant? = null,
+    var dateTime: OffsetDateTime? = null,
     val date: LocalDate? = null
 )
