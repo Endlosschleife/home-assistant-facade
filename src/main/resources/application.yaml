@@ -4,5 +4,5 @@ hafacade:
   home-assistant-auth-token: ${HOME_ASSISTANT_AUTH_TOKEN}
   calendar:
     entity-name: calendar.familienkalender
-    max-events-today: 3
-    max-events-tomorrow: 2
+    max-events-today: 5
+    max-events-tomorrow: 5
