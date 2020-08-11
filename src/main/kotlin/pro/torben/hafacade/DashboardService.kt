@@ -28,6 +28,9 @@ class DashboardService {
   @Inject
   lateinit var haProperties: HaFacadeProperties
 
+  @Inject
+  lateinit var wasteCalendarService: WasteCalendarService
+
   companion object {
     val logger = LoggerFactory.getLogger(DashboardService::class.simpleName)
     const val LABEL_TODAY = "Heute"
@@ -62,7 +65,8 @@ class DashboardService {
             dayOfWeek = currentDate.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.GERMAN),
             month = currentDate.month.getDisplayName(TextStyle.FULL, Locale.GERMAN),
             time = currentDate.format(DateTimeFormatter.ofPattern("HH:mm"))
-        )
+        ),
+        wasteCalendar = wasteCalendarService.getWasteCalendar()
     )
   }
 
@@ -124,7 +128,8 @@ class DashboardService {
 data class Dashboard(
     val events: Collection<DashboardCalendarGroup>,
     val weather: DashboardWeather,
-    val currentDate: DashboardCurrentDate
+    val currentDate: DashboardCurrentDate,
+    val wasteCalendar: Collection<WasteCalendarItem>
 )
 
 data class DashboardCalendarGroup(

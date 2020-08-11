@@ -6,3 +6,7 @@ hafacade:
     entity-name: calendar.familienkalender
     max-events-today: 5
     max-events-tomorrow: 5
+  waste-bin-calendar:
+    entity-name: calendar.abfuhrkalender_2020
+    bygone-days: 2
+    days-to-come: 35
