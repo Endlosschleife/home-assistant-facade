@@ -70,7 +70,7 @@ enum class WasteBin(val calendarValue: String, val value: String) {
   companion object {
     fun fromCalendarValue(value: String): WasteBin {
       for (v in values()) {
-        if (v.calendarValue == value) {
+        if (value.contains(v.calendarValue)) {
           return v
         }
       }
